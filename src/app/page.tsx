@@ -531,6 +531,12 @@ export default function Page() {
               </div>
             </CardContent>
           </Card>
+          <Card className="shadow-xl">
+            <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-green-600"/>最近提交</CardTitle></CardHeader>
+            <CardContent>
+              {list.length === 0 ? (<div className="text-center py-12 text-gray-500"><FileText className="w-12 h-12 mx-auto mb-3 opacity-30"/><p>暂无记录</p></div>) : (<div className="space-y-2 max-h-[500px] overflow-y-auto">{list.map(s => (<div key={s.id} className={`p-3 border rounded-lg bg-white hover:shadow-sm ${user && s.studentId === user.id ? 'border-blue-200 bg-blue-50' : ''}`}><div className="flex justify-between items-start mb-1"><span className="font-medium text-sm">{s.studentName}</span><div className="flex items-center gap-2"><Badge variant="secondary" className="text-xs">{s.homeworkTitle}</Badge>{s.grade && <Badge className={`${GRADE_COLORS[s.grade]} text-white text-xs`}>{s.grade}{(s.bonus ?? 0) > 0 && <span className="ml-1">+{s.bonus}</span>}</Badge>}{isAdmin && <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleDownload(s.filePath, s.fileName)}><Download className="w-3 h-3" /></Button>}</div></div><div className="text-xs text-gray-500">{s.fileName}</div><div className="text-xs text-gray-400 mt-1">{new Date(s.submittedAt).toLocaleString('zh-CN')}</div></div>))}</div>)}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
