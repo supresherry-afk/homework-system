@@ -1,0 +1,493 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Upload, FileText, CheckCircle2, Clock, LogOut, LogIn, Download, Settings, FolderDown, KeyRound, Star, Trophy, Zap } from 'lucide-react';
+
+const STUDENTS = [
+  { name: '韩炳凡', id: '202240608136', className: '23大数据' },
+  { name: '伊文金', id: '202340408101', className: '23大数据' },
+  { name: '赵旭阳', id: '202340408102', className: '23大数据' },
+  { name: '巨年曜', id: '202340408103', className: '23大数据' },
+  { name: '陈永庆', id: '202340408104', className: '23大数据' },
+  { name: '胡承润', id: '202340408105', className: '23大数据' },
+  { name: '马雲翔', id: '202340408106', className: '23大数据' },
+  { name: '方若', id: '202340408107', className: '23大数据' },
+  { name: '王强08', id: '202340408108', className: '23大数据' },
+  { name: '李士煜', id: '202340408109', className: '23大数据' },
+  { name: '厉国祎', id: '202340408110', className: '23大数据' },
+  { name: '罗宇诚', id: '202340408111', className: '23大数据' },
+  { name: '赵志康', id: '202340408112', className: '23大数据' },
+  { name: '雷凌峰', id: '202340408113', className: '23大数据' },
+  { name: '黄诗海', id: '202340408114', className: '23大数据' },
+  { name: '高静怡', id: '202340408115', className: '23大数据' },
+  { name: '廖紫豪', id: '202340408116', className: '23大数据' },
+  { name: '刘宇溪', id: '202340408117', className: '23大数据' },
+  { name: '何思炎', id: '202340408118', className: '23大数据' },
+  { name: '余训俊', id: '202340408119', className: '23大数据' },
+  { name: '徐梦洁', id: '202340408120', className: '23大数据' },
+  { name: '陈一帆', id: '202340408122', className: '23大数据' },
+  { name: '谈文昊', id: '202340408124', className: '23大数据' },
+  { name: '胡航', id: '202340408125', className: '23大数据' },
+  { name: '祝心怡', id: '202340408126', className: '23大数据' },
+  { name: '何章越', id: '202340408127', className: '23大数据' },
+  { name: '胡倩', id: '202340408128', className: '23大数据' },
+  { name: '任天石', id: '202340408129', className: '23大数据' },
+  { name: '程宇贤', id: '202340408130', className: '23大数据' },
+  { name: '段锐航', id: '202340408131', className: '23大数据' },
+  { name: '万伟', id: '202340408132', className: '23大数据' },
+  { name: '段辉杨', id: '202340408133', className: '23大数据' },
+  { name: '陈雪莲', id: '202340408134', className: '23大数据' },
+  { name: '陈叙言', id: '202340408135', className: '23大数据' },
+  { name: '邓春燕', id: '202340408136', className: '23大数据' },
+  { name: '陈叶', id: '202340408137', className: '23大数据' },
+  { name: '候睿琦', id: '202340408138', className: '23大数据' },
+  { name: '刘锦刚', id: '202340408139', className: '23大数据' },
+  { name: '葛雨彤', id: '202340408140', className: '23大数据' },
+  { name: '王强41', id: '202340408141', className: '23大数据' },
+  { name: '彭华建', id: '202340408142', className: '23大数据' },
+  { name: '舒浩天', id: '202340408143', className: '23大数据' },
+  { name: '吴新宇', id: '202340408144', className: '23大数据' },
+  { name: '陈果', id: '202340408145', className: '23大数据' },
+  { name: '魏志成', id: '202340408146', className: '23大数据' },
+  { name: '童荣林', id: '202340408147', className: '23大数据' },
+  { name: '陈星昭', id: '202340408148', className: '23大数据' },
+  { name: '杨家乐', id: '202340408149', className: '23大数据' },
+  { name: '吴欣雨', id: '202340408150', className: '23大数据' },
+  { name: '龚宇鑫', id: '202340506342', className: '23大数据' },
+  { name: '卢锦雪', id: '202341102144', className: '23大数据' },
+];
+
+const HOMEWORK_LIST = ['第1次作业', '第2次作业', '第3次作业', '第4次作业', '第5次作业', '第6次作业', '第7次作业', '第8次作业'];
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+const GRADE_SCORES: Record<string, number> = { 'A': 12.5, 'B': 11, 'C': 9.5, 'D': 8 };
+const GRADE_COLORS: Record<string, string> = { 'A': 'bg-green-500', 'B': 'bg-blue-500', 'C': 'bg-yellow-500', 'D': 'bg-orange-500' };
+
+interface Submission { 
+  id: string; studentName: string; studentId: string; className: string; 
+  homeworkTitle: string; description: string; fileName: string; filePath: string; 
+  submittedAt: string; grade?: string; bonus?: number; score?: number; 
+}
+interface User { name: string; id: string; className: string; }
+interface ScoreInfo { grade: string; bonus: number; score: number; }
+
+function StatusCell({ submitted, scoreInfo, isAdmin, onEditScore }: { 
+  submitted: boolean; scoreInfo?: ScoreInfo; isAdmin: boolean; onEditScore?: () => void 
+}) {
+  if (!submitted) return <div className="w-7 h-7 rounded-full bg-red-400 flex items-center justify-center" title="未提交"><span className="text-white text-xs">-</span></div>;
+  
+  if (!scoreInfo) return (
+    <div 
+      className={`w-7 h-7 rounded-full bg-gray-400 flex items-center justify-center cursor-${isAdmin ? 'pointer' : 'default'} hover:opacity-80`}
+      title="已提交，未评分"
+      onClick={isAdmin && onEditScore ? onEditScore : undefined}
+    >
+      <span className="text-white text-xs">?</span>
+    </div>
+  );
+  
+  return (
+    <div 
+      className={`w-7 h-7 rounded-full ${GRADE_COLORS[scoreInfo.grade] || 'bg-gray-400'} flex items-center justify-center cursor-${isAdmin ? 'pointer' : 'default'} hover:opacity-80 relative`}
+      title={`${scoreInfo.grade} = ${GRADE_SCORES[scoreInfo.grade]}分${scoreInfo.bonus > 0 ? ` + ${scoreInfo.bonus}分奖励` : ''} = ${scoreInfo.score}分`}
+      onClick={isAdmin && onEditScore ? onEditScore : undefined}
+    >
+      <span className="text-white text-xs font-bold">{scoreInfo.grade}</span>
+      {scoreInfo.bonus > 0 && (
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full flex items-center justify-center">
+          <span className="text-[6px] text-black font-bold">+</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Page() {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginType, setLoginType] = useState<'student' | 'admin'>('student');
+  const [loginForm, setLoginForm] = useState({ studentId: '', password: '' });
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [form, setForm] = useState({ homeworkTitle: '', description: '' });
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [list, setList] = useState<Submission[]>([]);
+  const [scores, setScores] = useState<Record<string, Record<string, ScoreInfo>>>({});
+  const [adminFilter, setAdminFilter] = useState('');
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [showScoreDialog, setShowScoreDialog] = useState(false);
+  const [editingScore, setEditingScore] = useState({ studentName: '', homeworkTitle: '', grade: 'A', bonus: '0' });
+  const [showAutoScoreDialog, setShowAutoScoreDialog] = useState(false);
+  const [autoScoreForm, setAutoScoreForm] = useState({ homeworkTitle: '', defaultGrade: 'B', onlyUnscored: true });
+  const [autoScoreLoading, setAutoScoreLoading] = useState(false);
+  const [noticeForm, setNoticeForm] = useState('');
+  const [showNoticeDialog, setShowNoticeDialog] = useState(false);
+  const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('homework_user');
+    const savedIsAdmin = localStorage.getItem('homework_is_admin');
+    if (savedUser) setUser(JSON.parse(savedUser));
+    if (savedIsAdmin === 'true') setIsAdmin(true);
+    fetchList();
+  }, []);
+
+  useEffect(() => {
+    const fetchNotice = async () => {
+      try {
+        const res = await fetch('/api/notice');
+        const data = await res.json();
+        if (res.ok) setNotice(data.notice || '');
+      } catch {}
+    };
+    fetchNotice();
+  }, []);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError('');
+    try {
+      const endpoint = loginType === 'admin' ? '/api/admin/login' : '/api/login';
+      const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(loginForm) });
+      const data = await res.json();
+      if (res.ok) {
+        if (loginType === 'admin') { setIsAdmin(true); localStorage.setItem('homework_is_admin', 'true'); setShowLogin(false); }
+        else { setUser(data.student); localStorage.setItem('homework_user', JSON.stringify(data.student)); if (data.isFirstLogin) { setIsFirstLogin(true); setShowPasswordDialog(true); } setShowLogin(false); }
+        setLoginForm({ studentId: '', password: '' });
+      } else { setLoginError(data.error); }
+    } catch { setLoginError('网络错误'); }
+    setLoginLoading(false);
+  };
+
+  const handleLogout = () => { setUser(null); setIsAdmin(false); setIsFirstLogin(false); localStorage.removeItem('homework_user'); localStorage.removeItem('homework_is_admin'); setForm({ homeworkTitle: '', description: '' }); setFile(null); setMsg(null); };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) { setPasswordMsg({ type: 'error', text: '两次密码不一致' }); return; }
+    if (passwordForm.newPassword.length < 6) { setPasswordMsg({ type: 'error', text: '密码至少6位' }); return; }
+    setPasswordLoading(true);
+    try {
+      const res = await fetch('/api/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: user?.id, oldPassword: passwordForm.oldPassword, newPassword: passwordForm.newPassword }) });
+      const data = await res.json();
+      if (res.ok) { setPasswordMsg({ type: 'success', text: '密码修改成功' }); setTimeout(() => { setShowPasswordDialog(false); setIsFirstLogin(false); setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' }); setPasswordMsg(null); }, 1500); }
+      else { setPasswordMsg({ type: 'error', text: data.error }); }
+    } catch { setPasswordMsg({ type: 'error', text: '网络错误' }); }
+    setPasswordLoading(false);
+  };
+
+  const onHomeworkChange = (e: React.ChangeEvent<HTMLSelectElement>) => { setForm(prev => ({ ...prev, homeworkTitle: e.target.value })); setMsg(null); };
+  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f?.size && f.size > MAX_FILE_SIZE) return setMsg({ type: 'error', text: '文件不能超过10MB' }); setFile(f || null); setMsg(null); };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return setMsg({ type: 'error', text: '请先登录' });
+    if (!file || !form.homeworkTitle) return setMsg({ type: 'error', text: '请选择作业次数并上传文件' });
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('studentName', user.name); fd.append('studentId', user.id); fd.append('className', user.className);
+      fd.append('homeworkTitle', form.homeworkTitle); fd.append('description', form.description); fd.append('file', file);
+      const r = await fetch('/api/submit', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (r.ok) { setMsg({ type: 'success', text: d.message }); setForm({ homeworkTitle: '', description: '' }); setFile(null); fetchList(); }
+      else setMsg({ type: 'error', text: d.error });
+    } catch { setMsg({ type: 'error', text: '网络错误' }); }
+    setLoading(false);
+  };
+
+  const fetchList = async () => {
+    try {
+      const r = await fetch('/api/submissions');
+      const d = await r.json();
+      if (r.ok) {
+        setList(d.submissions || []);
+        const scoresData: Record<string, Record<string, ScoreInfo>> = {};
+        for (const s of d.submissions || []) {
+          if (!scoresData[s.studentName]) scoresData[s.studentName] = {};
+          if (s.grade) scoresData[s.studentName][s.homeworkTitle] = { grade: s.grade, bonus: s.bonus || 0, score: s.score };
+        }
+        setScores(scoresData);
+      }
+    } catch {}
+  };
+
+  const getStudentStatus = (studentName: string, homeworkTitle: string) => list.some(s => s.studentName === studentName && s.homeworkTitle === homeworkTitle);
+  const getStudentScore = (studentName: string, homeworkTitle: string) => scores[studentName]?.[homeworkTitle];
+  
+  const getTotalScore = (studentName: string) => {
+    const studentScores = scores[studentName];
+    if (!studentScores) return 0;
+    return Object.values(studentScores).reduce((sum, s) => sum + (s?.score || 0), 0);
+  };
+
+  const stats = HOMEWORK_LIST.map(hw => ({ title: hw, submitted: list.filter(s => s.homeworkTitle === hw).length, total: STUDENTS.length }));
+
+  const handleDownload = async (filePath: string, fileName: string) => {
+    try { const response = await fetch(`/api/download/${encodeURIComponent(filePath)}`); if (!response.ok) { alert('文件下载失败'); return; } const blob = await response.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url); } catch { alert('下载失败'); }
+  };
+
+  const handleBatchDownload = async (homeworkTitle: string) => {
+    try { const response = await fetch(`/api/batch-download/${encodeURIComponent(homeworkTitle)}`); if (!response.ok) { alert('批量下载失败'); return; } const blob = await response.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${homeworkTitle}.zip`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url); } catch { alert('批量下载失败'); }
+  };
+
+  const openScoreDialog = (studentName: string, homeworkTitle: string) => {
+    const currentScore = getStudentScore(studentName, homeworkTitle);
+    setEditingScore({ 
+      studentName, 
+      homeworkTitle, 
+      grade: currentScore?.grade || 'A', 
+      bonus: String(currentScore?.bonus || 0) 
+    });
+    setShowScoreDialog(true);
+  };
+
+  const handleSaveScore = async () => {
+    const bonus = parseFloat(editingScore.bonus) || 0;
+    if (bonus < 0) { alert('额外加分不能为负数'); return; }
+    try {
+      const res = await fetch('/api/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentName: editingScore.studentName, homeworkTitle: editingScore.homeworkTitle, grade: editingScore.grade, bonus })
+      });
+      if (res.ok) { setShowScoreDialog(false); fetchList(); } else { alert('保存失败'); }
+    } catch { alert('网络错误'); }
+  };
+
+  const handleAutoScore = async () => {
+    if (!autoScoreForm.homeworkTitle || !autoScoreForm.defaultGrade) {
+      alert('请选择作业和默认等级');
+      return;
+    }
+    setAutoScoreLoading(true);
+    try {
+      const res = await fetch('/api/auto-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(autoScoreForm)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        setShowAutoScoreDialog(false);
+        fetchList();
+      } else {
+        alert(data.error);
+      }
+    } catch {
+      alert('网络错误');
+    }
+    setAutoScoreLoading(false);
+  };
+
+  const filteredList = adminFilter ? list.filter(s => s.homeworkTitle === adminFilter) : list;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+      <div className="max-w-7xl mx-auto py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">23大数据 作业提交系统</h1>
+          <div className="flex items-center gap-4">
+            {isAdmin && <Badge className="bg-purple-600 text-white px-3 py-1">管理员</Badge>}
+            {user && <><span className="text-sm">欢迎，<strong>{user.name}</strong> ({user.id})</span><Button variant="outline" size="sm" onClick={() => { setUser(null); localStorage.removeItem('homework_user'); }}><LogOut className="w-4 h-4 mr-1"/>退出学生登录</Button></>}
+            <Button variant="outline" size="sm" onClick={handleLogout}><LogOut className="w-4 h-4 mr-1"/>退出</Button>
+          </div>
+        </div>
+
+        {notice && <Alert className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200"><AlertDescription className="flex items-center gap-2"><span className="text-amber-800 font-medium">📢 重要提醒</span><span className="text-amber-900">{notice}</span></AlertDescription></Alert>}
+        {showLogin && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="w-full max-w-md shadow-xl">
+              <CardHeader><CardTitle>{loginType === 'admin' ? '管理员登录' : '学生登录'}</CardTitle><CardDescription>{loginType === 'admin' ? '请输入管理员账号密码' : '请输入学号和密码登录'}</CardDescription></CardHeader>
+              <CardContent>
+                <div className="flex gap-2 mb-4"><Button variant={loginType === 'student' ? 'default' : 'outline'} className="flex-1" onClick={() => setLoginType('student')}>学生登录</Button><Button variant={loginType === 'admin' ? 'default' : 'outline'} className="flex-1" onClick={() => setLoginType('admin')}>管理员登录</Button></div>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div><Label>{loginType === 'admin' ? '管理员账号' : '学号'}</Label><Input value={loginForm.studentId} onChange={e => setLoginForm(prev => ({ ...prev, studentId: e.target.value }))} placeholder={loginType === 'admin' ? '请输入管理员账号' : '请输入学号'} required /></div>
+                  <div><Label>密码</Label><Input type="password" value={loginForm.password} onChange={e => setLoginForm(prev => ({ ...prev, password: e.target.value }))} placeholder={loginType === 'admin' ? '请输入管理员密码' : '默认密码为学号后6位'} required /></div>
+                  {loginError && <Alert variant="destructive"><AlertDescription>{loginError}</AlertDescription></Alert>}
+                  <div className="flex gap-2"><Button type="button" variant="outline" className="flex-1" onClick={() => { setShowLogin(false); setLoginError(''); }}>取消</Button><Button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600" disabled={loginLoading}>{loginLoading ? '登录中...' : '登录'}</Button></div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent>
+            <DialogHeader><DialogTitle className="flex items-center gap-2"><KeyRound className="w-5 h-5" />{isFirstLogin ? '首次登录，请修改密码' : '修改密码'}</DialogTitle><DialogDescription>{isFirstLogin ? '为了账户安全，请修改默认密码' : '请输入原密码和新密码'}</DialogDescription></DialogHeader>
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div><Label>原密码</Label><Input type="password" value={passwordForm.oldPassword} onChange={e => setPasswordForm(prev => ({ ...prev, oldPassword: e.target.value }))} placeholder="请输入原密码" required /></div>
+              <div><Label>新密码</Label><Input type="password" value={passwordForm.newPassword} onChange={e => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))} placeholder="请输入新密码（至少6位）" required /></div>
+              <div><Label>确认新密码</Label><Input type="password" value={passwordForm.confirmPassword} onChange={e => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))} placeholder="请再次输入新密码" required /></div>
+              {passwordMsg && <Alert variant={passwordMsg.type === 'error' ? 'destructive' : 'default'}><AlertDescription>{passwordMsg.text}</AlertDescription></Alert>}
+              <div className="flex gap-2">{!isFirstLogin && <Button type="button" variant="outline" className="flex-1" onClick={() => setShowPasswordDialog(false)}>取消</Button>}<Button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600" disabled={passwordLoading}>{passwordLoading ? '修改中...' : '确认修改'}</Button></div>
+            </form>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={showScoreDialog} onOpenChange={setShowScoreDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><Star className="w-5 h-5 text-yellow-500" />评分</DialogTitle>
+              <DialogDescription>学生：{editingScore.studentName} | 作业：{editingScore.homeworkTitle}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>等级</Label>
+                <div className="flex gap-2 mt-2">
+                  {['A', 'B', 'C', 'D'].map(g => (
+                    <Button key={g} type="button" variant={editingScore.grade === g ? 'default' : 'outline'} className={`flex-1 ${editingScore.grade === g ? GRADE_COLORS[g] + ' text-white' : ''}`} onClick={() => setEditingScore(prev => ({ ...prev, grade: g }))}>
+                      <div className="text-center"><div className="font-bold">{g}</div><div className="text-xs opacity-80">{GRADE_SCORES[g]}分</div></div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div><Label>额外加分（优秀作业奖励，默认0）</Label><Input type="number" min="0" step="0.5" value={editingScore.bonus} onChange={e => setEditingScore(prev => ({ ...prev, bonus: e.target.value }))} placeholder="0" /></div>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="text-sm text-gray-600">本次得分：</div>
+                <div className="text-2xl font-bold text-blue-600">{(GRADE_SCORES[editingScore.grade] || 0) + (parseFloat(editingScore.bonus) || 0)} 分</div>
+                <div className="text-xs text-gray-500">= {GRADE_SCORES[editingScore.grade]}（{editingScore.grade}级）+ {parseFloat(editingScore.bonus) || 0}（奖励）</div>
+              </div>
+              <div className="flex gap-2"><Button variant="outline" className="flex-1" onClick={() => setShowScoreDialog(false)}>取消</Button><Button className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600" onClick={handleSaveScore}>保存</Button></div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={showAutoScoreDialog} onOpenChange={setShowAutoScoreDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><Zap className="w-5 h-5 text-yellow-500" />自动评分</DialogTitle>
+              <DialogDescription>批量为某次作业的所有提交打分</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>选择作业</Label>
+                <select value={autoScoreForm.homeworkTitle} onChange={e => setAutoScoreForm(prev => ({ ...prev, homeworkTitle: e.target.value }))} className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <option value="">-- 请选择 --</option>
+                  {HOMEWORK_LIST.map(h => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </div>
+              <div>
+                <Label>默认等级</Label>
+                <div className="flex gap-2 mt-2">
+                  {['A', 'B', 'C', 'D'].map(g => (
+                    <Button key={g} type="button" variant={autoScoreForm.defaultGrade === g ? 'default' : 'outline'} className={`flex-1 ${autoScoreForm.defaultGrade === g ? GRADE_COLORS[g] + ' text-white' : ''}`} onClick={() => setAutoScoreForm(prev => ({ ...prev, defaultGrade: g }))}>
+                      <div className="text-center"><div className="font-bold">{g}</div><div className="text-xs opacity-80">{GRADE_SCORES[g]}分</div></div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="onlyUnscored" checked={autoScoreForm.onlyUnscored} onChange={e => setAutoScoreForm(prev => ({ ...prev, onlyUnscored: e.target.checked }))} className="w-4 h-4" />
+                <Label htmlFor="onlyUnscored" className="text-sm">仅对未评分的提交生效（保留已评分的）</Label>
+              </div>
+              <div className="p-3 bg-yellow-50 rounded-lg text-sm text-yellow-800">
+                提示：将对该作业的 {autoScoreForm.onlyUnscored ? '未评分' : '所有'}提交打 {autoScoreForm.defaultGrade} 级（{GRADE_SCORES[autoScoreForm.defaultGrade]}分）
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setShowAutoScoreDialog(false)}>取消</Button>
+                <Button className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600" onClick={handleAutoScore} disabled={autoScoreLoading}>{autoScoreLoading ? '处理中...' : '开始自动评分'}</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Card className="shadow-xl mb-6">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-lg">📊 提交统计（满分100分 = 8次作业 × 12.5分）</CardTitle>
+              {isAdmin && (
+                <Button variant="outline" size="sm" onClick={() => setShowAutoScoreDialog(true)}>
+                  <Zap className="w-4 h-4 mr-1" />自动评分
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 flex-wrap">{stats.map(s => (<div key={s.title} className="text-center px-4 py-2 bg-gray-50 rounded-lg"><div className="text-sm font-medium">{s.title}</div><div className="text-lg font-bold text-blue-600">{s.submitted}/{s.total}</div>{isAdmin && s.submitted > 0 && <Button variant="ghost" size="sm" className="text-xs p-0 h-auto mt-1" onClick={() => handleBatchDownload(s.title)}><FolderDown className="w-3 h-3 mr-1" />打包下载</Button>}</div>))}</div>
+          </CardContent>
+        </Card>
+        <div className="grid lg:grid-cols-3 gap-6">
+          <Card className="shadow-xl">
+            <CardHeader><CardTitle className="flex items-center gap-2">{isAdmin ? <Settings className="w-5 h-5 text-purple-600"/> : <Upload className="w-5 h-5 text-blue-600"/>}{isAdmin ? '管理员面板' : '提交作业'}</CardTitle></CardHeader>
+            <CardContent>
+              {isAdmin ? (
+                <div className="space-y-4">
+                  <div><Label>按作业筛选</Label><select value={adminFilter} onChange={e => setAdminFilter(e.target.value)} className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="">全部作业</option>{HOMEWORK_LIST.map(h => <option key={h} value={h}>{h}</option>)}</select></div>
+                  <div className="text-sm text-gray-600">共 <strong>{filteredList.length}</strong> 条提交记录</div>
+                  <div className="border rounded-lg max-h-[400px] overflow-y-auto">{filteredList.length === 0 ? <div className="text-center py-8 text-gray-500">暂无记录</div> : <div className="divide-y">{filteredList.map(s => (<div key={s.id} className="p-3 hover:bg-gray-50 flex justify-between items-center"><div><div className="font-medium text-sm">{s.studentName}</div><div className="text-xs text-gray-500">{s.homeworkTitle} · {s.fileName}</div></div><div className="flex items-center gap-2">{s.grade && <Badge className={`${GRADE_COLORS[s.grade]} text-white`}>{s.grade}{(s.bonus ?? 0) > 0 && <span className="ml-1">+{s.bonus}</span>}</Badge>}<Button variant="outline" size="sm" onClick={() => handleDownload(s.filePath, s.fileName)}><Download className="w-4 h-4" /></Button></div></div>))}</div>}</div>
+                </div>
+              ) : user ? (
+                <form onSubmit={submit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4"><div><Label>姓名</Label><Input value={user.name} readOnly className="bg-gray-50"/></div><div><Label>学号</Label><Input value={user.id} readOnly className="bg-gray-50"/></div></div>
+                  <div><Label>班级</Label><Input value={user.className} readOnly className="bg-gray-50"/></div>
+                  <div><Label>作业次数 *</Label><select value={form.homeworkTitle} onChange={onHomeworkChange} className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required><option value="">-- 请选择作业次数 --</option>{HOMEWORK_LIST.map(h => <option key={h} value={h}>{h}</option>)}</select></div>
+                  <div><Label>说明（可选）</Label><Textarea name="description" value={form.description} onChange={onChange} rows={2}/></div>
+                  <div><Label>文件 (仅 Word/PDF，≤10MB)</Label><div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500"><input id="fileInput" type="file" accept=".doc,.docx,.pdf" onChange={onFileChange} className="hidden"/><label htmlFor="fileInput" className="cursor-pointer"><Upload className="w-8 h-8 mx-auto text-gray-400 mb-1"/><p className="text-sm text-gray-600">点击选择文件</p></label></div>{file && <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg mt-2"><FileText className="w-4 h-4 text-blue-600"/><span className="flex-1 text-sm truncate">{file.name}</span><Button type="button" variant="ghost" size="sm" onClick={() => setFile(null)}>✕</Button></div>}</div>
+                  {msg && <Alert><AlertDescription className="flex items-center gap-2">{msg.type === 'success' && <CheckCircle2 className="w-4 h-4 text-green-600"/>}{msg.text}</AlertDescription></Alert>}
+                  <div className="flex gap-2"><Button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600" disabled={loading}>{loading ? '提交中...' : '提交作业'}</Button><Button type="button" variant="outline" onClick={() => setShowPasswordDialog(true)}><KeyRound className="w-4 h-4" /></Button></div>
+                </form>
+              ) : (
+                <div className="text-center py-12 text-gray-500"><Upload className="w-12 h-12 mx-auto mb-3 opacity-30"/><p className="mb-4">请登录后提交作业</p><Button onClick={() => { setLoginType('student'); setShowLogin(true); }}><LogIn className="w-4 h-4 mr-2"/>学生登录</Button><div className="mt-4"><Button variant="outline" onClick={() => { setLoginType('admin'); setShowLogin(true); }}><Settings className="w-4 h-4 mr-2"/>管理员登录</Button></div></div>
+              )}
+            </CardContent>
+          </Card>
+          <Card className="shadow-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Trophy className="w-5 h-5 text-yellow-500"/>提交状态与成绩</CardTitle>
+              {isAdmin && <CardDescription className="text-xs">点击已提交的格子可评分</CardDescription>}
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center mb-3 pl-2">
+                <div className="w-14 text-sm font-medium">姓名</div>
+                <div className="flex gap-1">{HOMEWORK_LIST.map((_, i) => (<div key={i} className="w-7 text-center text-xs text-gray-500">{i + 1}</div>))}</div>
+                <div className="w-12 text-center text-xs font-medium text-blue-600 ml-1">总分</div>
+              </div>
+              <div className="space-y-2 max-h-[450px] overflow-y-auto">
+                {STUDENTS.map(student => {
+                  const total = getTotalScore(student.name);
+                  return (
+                    <div key={student.id} className={`flex items-center p-2 rounded-lg ${user && student.id === user.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'}`}>
+                      <div className="w-14 text-sm font-medium truncate">{student.name}</div>
+                      <div className="flex gap-1">
+                        {HOMEWORK_LIST.map(hw => (<StatusCell key={hw} submitted={getStudentStatus(student.name, hw)} scoreInfo={getStudentScore(student.name, hw)} isAdmin={isAdmin} onEditScore={() => openScoreDialog(student.name, hw)} />))}
+                      </div>
+                      <div className="w-12 text-center">
+                        <span className={`text-sm font-bold ${total >= 90 ? 'text-green-600' : total >= 60 ? 'text-blue-600' : 'text-gray-400'}`}>{total > 0 ? total.toFixed(1) : '-'}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-3 mt-4 pt-4 border-t text-xs flex-wrap">
+                <div className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">A</div> 12.5分</div>
+                <div className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">B</div> 11分</div>
+                <div className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-yellow-500 flex items-center justify-center text-white font-bold">C</div> 9.5分</div>
+                <div className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">D</div> 8分</div>
+                <div className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-gray-400 flex items-center justify-center text-white">?</div> 未评分</div>
+                <div className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-red-400"/> 未提交</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-xl">
+            <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-green-600"/>最近提交</CardTitle></CardHeader>
+            <CardContent>
+              {list.length === 0 ? (<div className="text-center py-12 text-gray-500"><FileText className="w-12 h-12 mx-auto mb-3 opacity-30"/><p>暂无记录</p></div>) : (<div className="space-y-2 max-h-[500px] overflow-y-auto">{list.map(s => (<div key={s.id} className={`p-3 border rounded-lg bg-white hover:shadow-sm ${user && s.studentId === user.id ? 'border-blue-200 bg-blue-50' : ''}`}><div className="flex justify-between items-start mb-1"><span className="font-medium text-sm">{s.studentName}</span><div className="flex items-center gap-2"><Badge variant="secondary" className="text-xs">{s.homeworkTitle}</Badge>{s.grade && <Badge className={`${GRADE_COLORS[s.grade]} text-white text-xs`}>{s.grade}{(s.bonus ?? 0) > 0 && <span className="ml-1">+{s.bonus}</span>}</Badge>}{isAdmin && <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleDownload(s.filePath, s.fileName)}><Download className="w-3 h-3" /></Button>}</div></div><div className="text-xs text-gray-500">{s.fileName}</div><div className="text-xs text-gray-400 mt-1">{new Date(s.submittedAt).toLocaleString('zh-CN')}</div></div>))}</div>)}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
